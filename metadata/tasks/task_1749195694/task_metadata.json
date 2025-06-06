@@ -1,0 +1,548 @@
+{
+  "repo_metadata": {
+    "repo_id": "UCSC-VLAA/Recap-DataComp-1B",
+    "repo_type": "datasets",
+    "revision": "main",
+    "task_id": "task_1749195694",
+    "collected_at": "2025-06-06T15:42:38.038199",
+    "repo_info": {
+      "id": "UCSC-VLAA/Recap-DataComp-1B",
+      "sha": "457c44d98651bcfdfb3cc8695f5e60a0d2705e78",
+      "last_modified": "2025-01-09T09:18:34.000Z",
+      "private": false,
+      "downloads": 4699,
+      "likes": 174,
+      "tags": [
+        "task_categories:zero-shot-classification",
+        "task_categories:text-retrieval",
+        "task_categories:image-to-text",
+        "task_categories:text-to-image",
+        "license:cc-by-4.0",
+        "size_categories:1B<n<10B",
+        "format:parquet",
+        "modality:image",
+        "modality:tabular",
+        "modality:text",
+        "library:datasets",
+        "library:dask",
+        "library:mlcroissant",
+        "library:polars",
+        "arxiv:2406.08478",
+        "region:us"
+      ],
+      "description": "\n\t\n\t\t\n\t\tDataset Card for Recap-DataComp-1B\n\t\n\n\n\nRecap-DataComp-1B is a large-scale image-text dataset that has been recaptioned using an advanced LLaVA-1.5-LLaMA3-8B model to enhance the alignment and detail of textual descriptions.\n\n\t\n\t\t\n\t\tDataset Details\n\t\n\n\n\t\n\t\t\n\t\tDataset Description\n\t\n\n\nOur paper aims to bridge this community effort, leveraging the powerful and open-sourced LLaMA-3, a GPT-4 level LLM.\nOur recaptioning pipeline is simple: first, we fine-tune a LLaMA-3-8B powered LLaVA-1.5… See the full description on the dataset page: https://huggingface.co/datasets/UCSC-VLAA/Recap-DataComp-1B.",
+      "siblings": 4630,
+      "library_name": "",
+      "pipeline_tag": "",
+      "created_at": "2024-06-04T19:16:52.000Z",
+      "updated_at": ""
+    },
+    "total_files": 997,
+    "total_size": 113381682990,
+    "total_size_formatted": "105.6 GB",
+    "file_list": [
+      {
+        "filename": ".gitattributes",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/.gitattributes",
+        "size": 2307
+      },
+      {
+        "filename": "README.md",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/README.md",
+        "size": 9038
+      },
+      {
+        "filename": "data/preview_data/preview-00000-of-00001.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/preview_data/preview-00000-of-00001.parquet",
+        "size": 572363
+      },
+      {
+        "filename": "data/train_data/train-00000-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00000-of-04627.parquet",
+        "size": 114287353
+      },
+      {
+        "filename": "data/train_data/train-00001-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00001-of-04627.parquet",
+        "size": 114299795
+      },
+      {
+        "filename": "data/train_data/train-00002-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00002-of-04627.parquet",
+        "size": 114275884
+      },
+      {
+        "filename": "data/train_data/train-00003-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00003-of-04627.parquet",
+        "size": 114230768
+      },
+      {
+        "filename": "data/train_data/train-00004-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00004-of-04627.parquet",
+        "size": 114318757
+      },
+      {
+        "filename": "data/train_data/train-00005-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00005-of-04627.parquet",
+        "size": 114349523
+      },
+      {
+        "filename": "data/train_data/train-00006-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00006-of-04627.parquet",
+        "size": 114460273
+      },
+      {
+        "filename": "data/train_data/train-00007-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00007-of-04627.parquet",
+        "size": 114421138
+      },
+      {
+        "filename": "data/train_data/train-00008-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00008-of-04627.parquet",
+        "size": 114469832
+      },
+      {
+        "filename": "data/train_data/train-00009-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00009-of-04627.parquet",
+        "size": 114184374
+      },
+      {
+        "filename": "data/train_data/train-00010-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00010-of-04627.parquet",
+        "size": 114109576
+      },
+      {
+        "filename": "data/train_data/train-00011-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00011-of-04627.parquet",
+        "size": 114278509
+      },
+      {
+        "filename": "data/train_data/train-00012-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00012-of-04627.parquet",
+        "size": 114364041
+      },
+      {
+        "filename": "data/train_data/train-00013-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00013-of-04627.parquet",
+        "size": 114379307
+      },
+      {
+        "filename": "data/train_data/train-00014-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00014-of-04627.parquet",
+        "size": 114366615
+      },
+      {
+        "filename": "data/train_data/train-00015-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00015-of-04627.parquet",
+        "size": 114567596
+      },
+      {
+        "filename": "data/train_data/train-00016-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00016-of-04627.parquet",
+        "size": 114501466
+      },
+      {
+        "filename": "data/train_data/train-00017-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00017-of-04627.parquet",
+        "size": 114584400
+      },
+      {
+        "filename": "data/train_data/train-00018-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00018-of-04627.parquet",
+        "size": 114462103
+      },
+      {
+        "filename": "data/train_data/train-00019-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00019-of-04627.parquet",
+        "size": 114478829
+      },
+      {
+        "filename": "data/train_data/train-00020-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00020-of-04627.parquet",
+        "size": 114284787
+      },
+      {
+        "filename": "data/train_data/train-00021-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00021-of-04627.parquet",
+        "size": 114102562
+      },
+      {
+        "filename": "data/train_data/train-00022-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00022-of-04627.parquet",
+        "size": 114245462
+      },
+      {
+        "filename": "data/train_data/train-00023-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00023-of-04627.parquet",
+        "size": 114486662
+      },
+      {
+        "filename": "data/train_data/train-00024-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00024-of-04627.parquet",
+        "size": 114523015
+      },
+      {
+        "filename": "data/train_data/train-00025-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00025-of-04627.parquet",
+        "size": 114426000
+      },
+      {
+        "filename": "data/train_data/train-00026-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00026-of-04627.parquet",
+        "size": 114392731
+      },
+      {
+        "filename": "data/train_data/train-00027-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00027-of-04627.parquet",
+        "size": 114150922
+      },
+      {
+        "filename": "data/train_data/train-00028-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00028-of-04627.parquet",
+        "size": 114239577
+      },
+      {
+        "filename": "data/train_data/train-00029-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00029-of-04627.parquet",
+        "size": 114518685
+      },
+      {
+        "filename": "data/train_data/train-00030-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00030-of-04627.parquet",
+        "size": 114445253
+      },
+      {
+        "filename": "data/train_data/train-00031-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00031-of-04627.parquet",
+        "size": 114372007
+      },
+      {
+        "filename": "data/train_data/train-00032-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00032-of-04627.parquet",
+        "size": 114355471
+      },
+      {
+        "filename": "data/train_data/train-00033-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00033-of-04627.parquet",
+        "size": 114509514
+      },
+      {
+        "filename": "data/train_data/train-00034-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00034-of-04627.parquet",
+        "size": 114278179
+      },
+      {
+        "filename": "data/train_data/train-00035-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00035-of-04627.parquet",
+        "size": 114477118
+      },
+      {
+        "filename": "data/train_data/train-00036-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00036-of-04627.parquet",
+        "size": 114461748
+      },
+      {
+        "filename": "data/train_data/train-00037-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00037-of-04627.parquet",
+        "size": 114533203
+      },
+      {
+        "filename": "data/train_data/train-00038-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00038-of-04627.parquet",
+        "size": 114376914
+      },
+      {
+        "filename": "data/train_data/train-00039-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00039-of-04627.parquet",
+        "size": 114346974
+      },
+      {
+        "filename": "data/train_data/train-00040-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00040-of-04627.parquet",
+        "size": 114373578
+      },
+      {
+        "filename": "data/train_data/train-00041-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00041-of-04627.parquet",
+        "size": 114444999
+      },
+      {
+        "filename": "data/train_data/train-00042-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00042-of-04627.parquet",
+        "size": 114481841
+      },
+      {
+        "filename": "data/train_data/train-00043-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00043-of-04627.parquet",
+        "size": 114501827
+      },
+      {
+        "filename": "data/train_data/train-00044-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00044-of-04627.parquet",
+        "size": 114529759
+      },
+      {
+        "filename": "data/train_data/train-00045-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00045-of-04627.parquet",
+        "size": 114138629
+      },
+      {
+        "filename": "data/train_data/train-00046-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00046-of-04627.parquet",
+        "size": 114187553
+      },
+      {
+        "filename": "data/train_data/train-00047-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00047-of-04627.parquet",
+        "size": 114289451
+      },
+      {
+        "filename": "data/train_data/train-00048-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00048-of-04627.parquet",
+        "size": 114296440
+      },
+      {
+        "filename": "data/train_data/train-00049-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00049-of-04627.parquet",
+        "size": 114423233
+      },
+      {
+        "filename": "data/train_data/train-00050-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00050-of-04627.parquet",
+        "size": 114350098
+      },
+      {
+        "filename": "data/train_data/train-00051-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00051-of-04627.parquet",
+        "size": 114354244
+      },
+      {
+        "filename": "data/train_data/train-00052-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00052-of-04627.parquet",
+        "size": 114387436
+      },
+      {
+        "filename": "data/train_data/train-00053-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00053-of-04627.parquet",
+        "size": 114511765
+      },
+      {
+        "filename": "data/train_data/train-00054-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00054-of-04627.parquet",
+        "size": 114355637
+      },
+      {
+        "filename": "data/train_data/train-00055-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00055-of-04627.parquet",
+        "size": 114284851
+      },
+      {
+        "filename": "data/train_data/train-00056-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00056-of-04627.parquet",
+        "size": 114373861
+      },
+      {
+        "filename": "data/train_data/train-00057-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00057-of-04627.parquet",
+        "size": 114315547
+      },
+      {
+        "filename": "data/train_data/train-00058-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00058-of-04627.parquet",
+        "size": 114397014
+      },
+      {
+        "filename": "data/train_data/train-00059-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00059-of-04627.parquet",
+        "size": 114445595
+      },
+      {
+        "filename": "data/train_data/train-00060-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00060-of-04627.parquet",
+        "size": 114397140
+      },
+      {
+        "filename": "data/train_data/train-00061-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00061-of-04627.parquet",
+        "size": 114188689
+      },
+      {
+        "filename": "data/train_data/train-00062-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00062-of-04627.parquet",
+        "size": 114192810
+      },
+      {
+        "filename": "data/train_data/train-00063-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00063-of-04627.parquet",
+        "size": 114080352
+      },
+      {
+        "filename": "data/train_data/train-00064-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00064-of-04627.parquet",
+        "size": 114185487
+      },
+      {
+        "filename": "data/train_data/train-00065-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00065-of-04627.parquet",
+        "size": 114223194
+      },
+      {
+        "filename": "data/train_data/train-00066-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00066-of-04627.parquet",
+        "size": 114162242
+      },
+      {
+        "filename": "data/train_data/train-00067-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00067-of-04627.parquet",
+        "size": 114378180
+      },
+      {
+        "filename": "data/train_data/train-00068-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00068-of-04627.parquet",
+        "size": 114287061
+      },
+      {
+        "filename": "data/train_data/train-00069-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00069-of-04627.parquet",
+        "size": 114548279
+      },
+      {
+        "filename": "data/train_data/train-00070-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00070-of-04627.parquet",
+        "size": 114505285
+      },
+      {
+        "filename": "data/train_data/train-00071-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00071-of-04627.parquet",
+        "size": 114330651
+      },
+      {
+        "filename": "data/train_data/train-00072-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00072-of-04627.parquet",
+        "size": 114401110
+      },
+      {
+        "filename": "data/train_data/train-00073-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00073-of-04627.parquet",
+        "size": 114365738
+      },
+      {
+        "filename": "data/train_data/train-00074-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00074-of-04627.parquet",
+        "size": 114397067
+      },
+      {
+        "filename": "data/train_data/train-00075-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00075-of-04627.parquet",
+        "size": 114365898
+      },
+      {
+        "filename": "data/train_data/train-00076-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00076-of-04627.parquet",
+        "size": 114156073
+      },
+      {
+        "filename": "data/train_data/train-00077-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00077-of-04627.parquet",
+        "size": 114407806
+      },
+      {
+        "filename": "data/train_data/train-00078-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00078-of-04627.parquet",
+        "size": 114384690
+      },
+      {
+        "filename": "data/train_data/train-00079-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00079-of-04627.parquet",
+        "size": 114361741
+      },
+      {
+        "filename": "data/train_data/train-00080-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00080-of-04627.parquet",
+        "size": 114332366
+      },
+      {
+        "filename": "data/train_data/train-00081-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00081-of-04627.parquet",
+        "size": 114106820
+      },
+      {
+        "filename": "data/train_data/train-00082-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00082-of-04627.parquet",
+        "size": 114285663
+      },
+      {
+        "filename": "data/train_data/train-00083-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00083-of-04627.parquet",
+        "size": 114411112
+      },
+      {
+        "filename": "data/train_data/train-00084-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00084-of-04627.parquet",
+        "size": 114544144
+      },
+      {
+        "filename": "data/train_data/train-00085-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00085-of-04627.parquet",
+        "size": 114389566
+      },
+      {
+        "filename": "data/train_data/train-00086-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00086-of-04627.parquet",
+        "size": 114381178
+      },
+      {
+        "filename": "data/train_data/train-00087-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00087-of-04627.parquet",
+        "size": 114248659
+      },
+      {
+        "filename": "data/train_data/train-00088-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00088-of-04627.parquet",
+        "size": 114305484
+      },
+      {
+        "filename": "data/train_data/train-00089-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00089-of-04627.parquet",
+        "size": 114151283
+      },
+      {
+        "filename": "data/train_data/train-00090-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00090-of-04627.parquet",
+        "size": 114035828
+      },
+      {
+        "filename": "data/train_data/train-00091-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00091-of-04627.parquet",
+        "size": 114268478
+      },
+      {
+        "filename": "data/train_data/train-00092-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00092-of-04627.parquet",
+        "size": 114215256
+      },
+      {
+        "filename": "data/train_data/train-00093-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00093-of-04627.parquet",
+        "size": 114209909
+      },
+      {
+        "filename": "data/train_data/train-00094-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00094-of-04627.parquet",
+        "size": 114164815
+      },
+      {
+        "filename": "data/train_data/train-00095-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00095-of-04627.parquet",
+        "size": 114282960
+      },
+      {
+        "filename": "data/train_data/train-00096-of-04627.parquet",
+        "url": "https://hf-mirror.com/datasets/UCSC-VLAA/Recap-DataComp-1B/resolve/main/data/train_data/train-00096-of-04627.parquet",
+        "size": 114337691
+      }
+    ],
+    "download_mode": "high_speed"
+  },
+  "saved_at": "2025-06-06T15:42:38.038612"
+}
