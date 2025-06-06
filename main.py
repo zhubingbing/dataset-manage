@@ -213,6 +213,46 @@ def main():
     parser.add_argument('--downloads-dir', help='下载文件存储目录（默认: downloads）')
     parser.add_argument('--logs-dir', help='日志文件存储目录（默认: logs）')
     
+    # HF认证参数
+    parser.add_argument('--hf-username', type=str, help='Hugging Face 用户名 (用于需要认证的仓库)')
+    parser.add_argument('--hf-token', type=str, help='Hugging Face 访问令牌 (用于需要认证的仓库)')
+
+    # 任务管理参数
+    parser.add_argument('--create-task', action='store_true', help='创建新的下载任务')
+    parser.add_argument('--list-tasks', action='store_true', help='列出所有任务')
+    parser.add_argument('--resume', action='store_true', help='恢复下载任务')
+    parser.add_argument('--status', action='store_true', help='显示下载状态')
+    parser.add_argument('--task-id', type=str, help='指定任务ID')
+    parser.add_argument('--cancel', action='store_true', help='取消任务')
+    parser.add_argument('--delete-task', action='store_true', help='删除任务')
+    parser.add_argument('--task-detail', action='store_true', help='显示任务详情')
+    parser.add_argument('--clean-completed', action='store_true', help='清理已完成的任务')
+    parser.add_argument('--clean-failed', action='store_true', help='清理失败的任务')
+    parser.add_argument('--fix-progress', action='store_true', help='修复进度显示问题')
+
+    # 下载参数
+    parser.add_argument('--output-dir', type=str, help='下载输出目录')
+    parser.add_argument('--base-url', type=str, help='基础URL (默认: https://hf-mirror.com)')
+    parser.add_argument('--dataset', action='store_true', help='下载数据集 (默认下载模型)')
+    parser.add_argument('--tool', choices=['aria2c', 'wget'], help='下载工具')
+    parser.add_argument('--threads', type=int, help='并发线程数')
+    parser.add_argument('--exclude', nargs='*', help='排除文件模式')
+    parser.add_argument('--include', nargs='*', help='包含文件模式')
+    
+    # 系统管理参数
+    parser.add_argument('--check-system', action='store_true', help='检查系统状态')
+    parser.add_argument('--verify', action='store_true', help='验证已下载文件的完整性')
+    
+    # 批量操作参数  
+    parser.add_argument('--batch-file', type=str, help='批量下载配置文件')
+    parser.add_argument('--batch-create', action='store_true', help='批量创建任务')
+    parser.add_argument('--batch-start', action='store_true', help='批量开始下载')
+    parser.add_argument('--batch-status', action='store_true', help='批量状态查询')
+    parser.add_argument('--batch-stop', action='store_true', help='批量停止下载')
+    
+    # 配置参数
+    parser.add_argument('--config', type=str, default='config.json', help='配置文件路径')
+    
     subparsers = parser.add_subparsers(dest='command', help='可用命令')
     
     # 添加数据集命令
@@ -237,7 +277,6 @@ def main():
     download_parser.add_argument('--dataset', action='store_true', help='标记为数据集（而非模型）')
     
     # 任务管理命令
-    subparsers.add_parser('list-tasks', help='列出所有任务')
     subparsers.add_parser('list-datasets', help='列出所有数据集')
     
     status_parser = subparsers.add_parser('status', help='查看任务状态')
@@ -320,20 +359,36 @@ def main():
         parser.print_help()
         return
     
-    # 处理全局配置选项
+    # 初始化配置
     config = get_config()
     
-    if args.metadata_dir:
-        config.set_metadata_dir(args.metadata_dir)
-        print(f"{Colors.GREEN}✓ 元数据目录设置为: {args.metadata_dir}{Colors.NC}")
+    # 处理HF认证参数
+    if hasattr(args, 'hf_username') and args.hf_username:
+        config.set_hf_auth(username=args.hf_username)
+    if hasattr(args, 'hf_token') and args.hf_token:
+        config.set_hf_auth(token=args.hf_token)
     
-    if args.downloads_dir:
-        config.set_downloads_dir(args.downloads_dir)
-        print(f"{Colors.GREEN}✓ 下载目录设置为: {args.downloads_dir}{Colors.NC}")
+    # 保存配置更新
+    if (hasattr(args, 'hf_username') and args.hf_username) or (hasattr(args, 'hf_token') and args.hf_token):
+        config.save_config()
+        print("✅ HF认证信息已保存到配置文件")
     
-    if args.logs_dir:
-        config.set_logs_dir(args.logs_dir)
-        print(f"{Colors.GREEN}✓ 日志目录设置为: {args.logs_dir}{Colors.NC}")
+    # 检查并显示认证状态
+    if config.is_hf_auth_available():
+        username, token = config.get_hf_auth()
+        print(f"🔐 HF认证: 用户名={username or 'N/A'}, Token={'已设置' if token else '未设置'}")
+    
+    # 设置配置路径
+    if hasattr(args, 'metadata_dir') and args.metadata_dir:
+        config.set('paths.metadata_dir', args.metadata_dir)
+    if hasattr(args, 'downloads_dir') and args.downloads_dir:
+        config.set('paths.downloads_dir', args.downloads_dir)  
+    if hasattr(args, 'logs_dir') and args.logs_dir:
+        config.set('paths.logs_dir', args.logs_dir)
+    
+    # 设置HF端点
+    if hasattr(args, 'base_url') and args.base_url:
+        config.set('network.hf_endpoint', args.base_url)
     
     # 设置日志
     setup_logging()

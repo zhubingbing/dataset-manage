@@ -80,12 +80,12 @@ class DownloadManager:
             # 使用递归API - 一次性获取所有文件
             api_url = f"{base_url}/api/{repo_type}/{repo_id}/tree/{revision}?recursive=true"
             
-            headers = {}
-            hf_token = os.getenv('HF_TOKEN')
-            if hf_token:
-                headers['Authorization'] = f"Bearer {hf_token}"
+            # 使用新的配置系统获取认证头部
+            headers = self.config.get_auth_headers()
             
             print(f"{Colors.BLUE}📡 正在获取文件列表: {repo_id}{Colors.NC}")
+            if self.config.is_hf_auth_available():
+                print(f"{Colors.CYAN}🔐 使用认证方式访问{Colors.NC}")
             
             response = requests.get(
                 api_url, 
@@ -112,6 +112,15 @@ class DownloadManager:
             
         except requests.exceptions.Timeout:
             print(f"{Colors.RED}⚠️ API请求超时{Colors.NC}")
+            return []
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 401:
+                print(f"{Colors.RED}❌ 认证失败: 该仓库需要有效的Hugging Face token{Colors.NC}")
+                print(f"{Colors.YELLOW}💡 请使用 --hf-token 参数提供访问令牌{Colors.NC}")
+            elif e.response.status_code == 403:
+                print(f"{Colors.RED}❌ 访问被拒绝: 您可能没有访问该仓库的权限{Colors.NC}")
+            else:
+                print(f"{Colors.RED}HTTP错误: {e.response.status_code}{Colors.NC}")
             return []
         except Exception as e:
             print(f"{Colors.RED}获取文件列表失败: {str(e)}{Colors.NC}")
@@ -363,13 +372,18 @@ class DownloadManager:
                 '-i', f'{task_id}_input.txt'  # 使用相对路径，不设置dir参数
             ]
             
-            # 添加认证头
-            hf_token = os.getenv('HF_TOKEN')
-            if hf_token:
-                aria2c_args.extend(['--header', f'Authorization: Bearer {hf_token}'])
+            # 使用新的配置系统添加认证头
+            auth_headers = self.config.get_auth_headers()
+            for header_name, header_value in auth_headers.items():
+                aria2c_args.extend(['--header', f'{header_name}: {header_value}'])
+            
+            if self.config.is_hf_auth_available():
+                print(f"{Colors.CYAN}🔐 已配置HF认证headers{Colors.NC}")
             
             print(f"{Colors.BLUE}🚀 启动aria2c高速下载...{Colors.NC}")
             print(f"{Colors.CYAN}命令: aria2c -j8 -x5 -i {task_id}_input.txt{Colors.NC}")
+            if self.config.is_hf_auth_available():
+                print(f"{Colors.CYAN}      (包含认证headers){Colors.NC}")
             print(f"{Colors.YELLOW}💡 提示：如遇网络问题，aria2c会自动重试{Colors.NC}")
             print(f"{Colors.CYAN}💡 正在启动实时文件监控...{Colors.NC}")
             
