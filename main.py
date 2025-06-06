@@ -278,6 +278,7 @@ def main():
     
     # 任务管理命令
     subparsers.add_parser('list-datasets', help='列出所有数据集')
+    subparsers.add_parser('list-tasks', help='列出所有下载任务')
     
     status_parser = subparsers.add_parser('status', help='查看任务状态')
     status_parser.add_argument('task_id', help='任务ID')
@@ -524,8 +525,8 @@ def main():
             if not tasks:
                 print(f"{Colors.YELLOW}暂无任务{Colors.NC}")
             else:
-                print(f"\n{'ID':<8} {'数据集':<30} {'状态':<10} {'工具':<8} {'进度':<10} {'创建时间':<20}")
-                print("-" * 90)
+                print(f"\n{'ID':<15} {'数据集':<35} {'状态':<10} {'工具':<8} {'进度':<10} {'创建时间':<20}")
+                print("-" * 105)
                 for task in tasks:
                     status_color = {
                         'pending': Colors.YELLOW,
@@ -535,8 +536,22 @@ def main():
                         'cancelled': Colors.GRAY
                     }.get(task['status'], Colors.NC)
                     
-                    print(f"{task['id']:<8} {task['repo_id']:<30} {status_color}{task['status']:<10}{Colors.NC} "
-                          f"{task['tool']:<8} {task.get('progress', 'N/A'):<10} {task['created_at'][:16]:<20}")
+                    # 格式化任务ID，确保显示完整
+                    task_id = task.get('id', task.get('task_id', 'Unknown'))
+                    repo_id = task.get('repo_id', 'Unknown')
+                    status = task.get('status', 'Unknown')
+                    tool = task.get('tool', 'Unknown')
+                    progress = task.get('progress', 'N/A')
+                    created_at = task.get('created_at', 'Unknown')[:16] if task.get('created_at') else 'Unknown'
+                    
+                    print(f"{task_id:<15} {repo_id:<35} {status_color}{status:<10}{Colors.NC} "
+                          f"{tool:<8} {progress:<10} {created_at:<20}")
+                
+                # 显示统计信息
+                stats = task_manager.get_task_stats()
+                print(f"\n{Colors.BOLD}任务统计:{Colors.NC}")
+                print(f"总计: {stats['total']}, 等待: {stats['pending']}, 运行: {stats['running']}, "
+                      f"完成: {stats['completed']}, 失败: {stats['failed']}, 取消: {stats['cancelled']}")
                     
         elif args.command == 'list-datasets':
             datasets = dataset_manager.list_datasets()
@@ -752,65 +767,7 @@ def main():
                 
         elif args.command == 'task-detail':
             # 查看任务详细信息
-            task = task_manager.get_task(args.task_id)
-            if not task:
-                print(f"{Colors.RED}✗ 任务 {args.task_id} 不存在{Colors.NC}")
-                return
-            
-            try:
-                file_tracker = FileTracker(args.task_id)
-                summary = file_tracker.get_download_summary()
-                failed_files = file_tracker.get_failed_files()
-                pending_files = file_tracker.get_pending_files()
-                
-                print(f"\n{Colors.BOLD}=== 任务详细信息 ==={Colors.NC}")
-                print(f"任务ID: {task['id']}")
-                print(f"仓库: {task['repo_id']}")
-                print(f"状态: {task['status']}")
-                print(f"工具: {task['tool']}")
-                print(f"创建时间: {task['created_at']}")
-                if task.get('completed_at'):
-                    print(f"完成时间: {task['completed_at']}")
-                if task.get('error_message'):
-                    print(f"错误信息: {task['error_message']}")
-                
-                print(f"\n{Colors.BOLD}=== 文件统计 ==={Colors.NC}")
-                print(f"总文件数: {summary['total_files']}")
-                print(f"已完成: {summary['completed_files']} ({summary['completion_rate']})")
-                print(f"失败: {summary['failed_files']}")
-                print(f"待下载: {summary['pending_files']}")
-                print(f"下载大小: {summary['downloaded_size_formatted']} / {summary['total_size_formatted']}")
-                
-                # 显示失败的文件
-                if failed_files:
-                    print(f"\n{Colors.RED}失败文件:{Colors.NC}")
-                    for file_info in failed_files[:5]:
-                        print(f"  ✗ {file_info['filename']}: {file_info['error']}")
-                    if len(failed_files) > 5:
-                        print(f"  ... 还有 {len(failed_files) - 5} 个失败文件")
-                
-                # 显示待下载的文件
-                if pending_files:
-                    print(f"\n{Colors.YELLOW}待下载文件:{Colors.NC}")
-                    for file_info in pending_files[:5]:
-                        size_str = f" ({format_file_size(file_info['size'])})" if file_info['size'] > 0 else ""
-                        print(f"  ○ {file_info['filename']}{size_str}")
-                    if len(pending_files) > 5:
-                        print(f"  ... 还有 {len(pending_files) - 5} 个待下载文件")
-                        
-            except Exception as e:
-                print(f"{Colors.YELLOW}无法获取详细文件信息: {str(e)}{Colors.NC}")
-                # 至少显示基本任务信息
-                print(f"\n任务详情:")
-                print(f"ID: {task['id']}")
-                print(f"数据集: {task['repo_id']}")
-                print(f"状态: {task['status']}")
-                print(f"工具: {task['tool']}")
-                print(f"创建时间: {task['created_at']}")
-                if task.get('completed_at'):
-                    print(f"完成时间: {task['completed_at']}")
-                if task.get('error_message'):
-                    print(f"错误信息: {task['error_message']}")
+            show_task_detail(args.task_id, task_manager)
             
         elif args.command == 'config':
             # 显示配置信息
@@ -1073,6 +1030,60 @@ def main():
     except Exception as e:
         print(f"{Colors.RED}✗ 错误: {str(e)}{Colors.NC}")
         sys.exit(1)
+
+def show_task_detail(task_id, task_manager):
+    """显示任务详细信息"""
+    task = task_manager.get_task(task_id)
+    if not task:
+        print(f"{Colors.RED}任务 {task_id} 不存在{Colors.NC}")
+        return
+    
+    print(f"\n=== 任务详细信息 ===")
+    print(f"任务ID: {task_id}")
+    print(f"仓库: {task['repo_id']}")
+    print(f"状态: {task['status']}")
+    print(f"工具: {task['tool']}")
+    print(f"创建时间: {task['created_at']}")
+    
+    # 如果是HFD导入的任务，使用HFD元数据
+    if task.get('created_from_hfd') and task.get('hfd_metadata'):
+        hfd_meta = task['hfd_metadata']
+        print(f"\n=== 文件统计 ===")
+        print(f"总文件数: {hfd_meta.get('complete_files_count', 0)}")
+        print(f"已完成: {hfd_meta.get('completed_files', 0)} ({hfd_meta.get('completed_files', 0) * 100 / hfd_meta.get('complete_files_count', 1):.1f}%)")
+        print(f"失败: 0")
+        print(f"待下载: {hfd_meta.get('pending_files', 0)}")
+        print(f"下载大小: {hfd_meta.get('total_size_formatted', '0 B')}")
+        
+        # 显示待下载文件示例
+        if task.get('hfd_complete_files'):
+            pending_files = [f for f in task['hfd_complete_files'] if f.get('status') == 'pending']
+            if pending_files:
+                print("\n待下载文件:")
+                for file in pending_files[:5]:
+                    print(f"  ○ {file['filename']}")
+                if len(pending_files) > 5:
+                    print(f"  ... 还有 {len(pending_files) - 5} 个待下载文件")
+    else:
+        # 使用文件追踪器获取统计信息
+        file_tracker = FileTracker(task_id)
+        summary = file_tracker.get_download_summary()
+        
+        print(f"\n=== 文件统计 ===")
+        print(f"总文件数: {summary['total_files']}")
+        print(f"已完成: {summary['completed_files']} ({summary['completion_rate']})")
+        print(f"失败: {summary['failed_files']}")
+        print(f"待下载: {summary['pending_files']}")
+        print(f"下载大小: {summary['downloaded_size_formatted']} / {summary['total_size_formatted']}")
+        
+        # 显示待下载文件
+        pending_files = file_tracker.get_pending_files()
+        if pending_files:
+            print("\n待下载文件:")
+            for file in pending_files[:5]:
+                print(f"  ○ {file['filename']}")
+            if len(pending_files) > 5:
+                print(f"  ... 还有 {len(pending_files) - 5} 个待下载文件")
 
 if __name__ == '__main__':
     main() 

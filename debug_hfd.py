@@ -5,7 +5,7 @@ from pathlib import Path
 
 # 先查看原始文件内容
 print("原始文件前40行:")
-with open('/mnt/data/code/llm/Recap-DataComp-1B/.hfd/aria2c_urls.txt', 'r') as f:
+with open('/mnt/data/code/code.bing.com/wq/20250606/.hfd/aria2c_urls.txt', 'r') as f:
     lines = f.readlines()
     for i, line in enumerate(lines[:40]):
         print(f"{i+1:2d}: {repr(line)}")
@@ -14,8 +14,8 @@ print("\n" + "="*50)
 
 # 创建导入器
 importer = HFDImporter(
-    '/mnt/data/code/llm/Recap-DataComp-1B/.hfd', 
-    '/mnt/data/code/llm/Recap-DataComp-1B'
+    '/mnt/data/code/code.bing.com/wq/20250606/.hfd', 
+    '/mnt/data/code/code.bing.com/wq/20250606'
 )
 
 # 解析 aria2c_urls.txt 文件

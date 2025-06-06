@@ -6,6 +6,7 @@
 import os
 import re
 import json
+import sys
 import time
 import threading
 import subprocess
@@ -72,13 +73,10 @@ class DownloadManager:
             return {'error': f'获取仓库信息失败: {str(e)}'}
     
     def _get_file_list(self, repo_id, is_dataset=False, revision='main'):
-        """快速获取文件列表 - 使用递归API调用"""
+        """获取完整文件列表 - 支持超大数据集的完整下载"""
         try:
             base_url = self.config.get_hf_endpoint()
             repo_type = 'datasets' if is_dataset else 'models'
-            
-            # 使用递归API - 一次性获取所有文件
-            api_url = f"{base_url}/api/{repo_type}/{repo_id}/tree/{revision}?recursive=true"
             
             # 使用新的配置系统获取认证头部
             headers = self.config.get_auth_headers()
@@ -87,41 +85,129 @@ class DownloadManager:
             if self.config.is_hf_auth_available():
                 print(f"{Colors.CYAN}🔐 使用认证方式访问{Colors.NC}")
             
-            response = requests.get(
-                api_url, 
-                headers=headers,
-                proxies=self.config.get_proxies(),
-                timeout=60  # 增加超时时间
-            )
-            response.raise_for_status()
+            # 大幅增加递归限制以处理超大数据集
+            original_recursion_limit = sys.getrecursionlimit()
+            sys.setrecursionlimit(50000)  # 增加到50000以支持超大数据集
             
-            data = response.json()
+            try:
+                # 首先获取仓库信息以了解文件总数
+                api_url = f"{base_url}/api/{repo_type}/{repo_id}"
+                response = requests.get(
+                    api_url,
+                    headers=headers,
+                    proxies=self.config.get_proxies(),
+                    timeout=300
+                )
+                response.raise_for_status()
+                repo_info = response.json()
+                
+                # 获取siblings数量
+                total_files = len(repo_info.get('siblings', []))
+                print(f"{Colors.CYAN}📊 仓库中共有 {total_files} 个文件{Colors.NC}")
+                
+                # 使用分页方式获取所有文件
+                all_files = []
+                page = 1
+                page_size = 10000  # 每页10000个文件
+                
+                while True:
+                    print(f"{Colors.YELLOW}🔍 获取第 {page} 页文件列表 (每页 {page_size} 个)...{Colors.NC}")
+                    
+                    # 构建API URL，添加分页参数
+                    api_url = f"{base_url}/api/{repo_type}/{repo_id}/tree/{revision}"
+                    params = {
+                        'recursive': 'true',
+                        'page': page,
+                        'page_size': page_size
+                    }
+                    
+                    response = requests.get(
+                        api_url, 
+                        params=params,
+                        headers=headers,
+                        proxies=self.config.get_proxies(),
+                        timeout=300  # 增加超时时间到5分钟以支持超大数据集
+                    )
+                    response.raise_for_status()
+                    
+                    # 解析响应
+                    try:
+                        data = response.json()
+                    except (RecursionError, json.JSONDecodeError, MemoryError) as json_error:
+                        print(f"{Colors.RED}❌ JSON解析失败: {str(json_error)[:200]}{Colors.NC}")
+                        return []
+                    
+                    # 如果是空列表，说明已经获取完所有文件
+                    if not data:
+                        break
+                    
+                    # 处理当前页的文件
+                    files_in_page = []
+                    for item in data:
+                        if item['type'] == 'file':
+                            file_url = f"{base_url}/{repo_type}/{repo_id}/resolve/{revision}/{item['path']}"
+                            files_in_page.append({
+                                'filename': item['path'],
+                                'url': file_url,
+                                'size': item.get('size', 0)
+                            })
+                    
+                    # 添加到总列表
+                    all_files.extend(files_in_page)
+                    print(f"{Colors.CYAN}📊 第 {page} 页: 获取到 {len(files_in_page)} 个文件 (总计: {len(all_files)}/{total_files}){Colors.NC}")
+                    
+                    # 如果这一页的文件数小于page_size，说明是最后一页
+                    if len(data) < page_size:
+                        break
+                    
+                    page += 1
+                
+                # 验证是否获取了所有文件
+                if len(all_files) < total_files:
+                    print(f"{Colors.RED}⚠️ 警告：只获取到 {len(all_files)} 个文件，少于仓库中的 {total_files} 个文件{Colors.NC}")
+                    print(f"{Colors.YELLOW}💡 建议：使用HFD工具下载以确保获取完整文件列表{Colors.NC}")
+                    
+                    # 尝试使用siblings列表补充
+                    if 'siblings' in repo_info:
+                        print(f"{Colors.BLUE}📋 使用仓库信息补充文件列表...{Colors.NC}")
+                        existing_files = {f['filename'] for f in all_files}
+                        for sibling in repo_info['siblings']:
+                            if 'rfilename' in sibling and sibling['rfilename'] not in existing_files:
+                                file_url = f"{base_url}/{repo_type}/{repo_id}/resolve/{revision}/{sibling['rfilename']}"
+                                all_files.append({
+                                    'filename': sibling['rfilename'],
+                                    'url': file_url,
+                                    'size': sibling.get('size', 0)
+                                })
+                        print(f"{Colors.GREEN}✓ 补充后共有 {len(all_files)} 个文件{Colors.NC}")
+                
+                print(f"{Colors.GREEN}✓ 成功获取到 {len(all_files)} 个文件{Colors.NC}")
+                return all_files
+                
+            except requests.exceptions.Timeout:
+                print(f"{Colors.RED}❌ API请求超时（5分钟）{Colors.NC}")
+                print(f"{Colors.YELLOW}💡 数据集可能过大，建议使用HFD工具或分批下载{Colors.NC}")
+                return []
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code == 401:
+                    print(f"{Colors.RED}❌ 认证失败: 该仓库需要有效的Hugging Face token{Colors.NC}")
+                    print(f"{Colors.YELLOW}💡 请使用 --hf-token 参数提供访问令牌{Colors.NC}")
+                elif e.response.status_code == 403:
+                    print(f"{Colors.RED}❌ 访问被拒绝: 您可能没有访问该仓库的权限{Colors.NC}")
+                elif e.response.status_code == 502 or e.response.status_code == 503:
+                    print(f"{Colors.RED}❌ 服务器错误 ({e.response.status_code}): 可能是数据集过大导致的服务器超时{Colors.NC}")
+                    print(f"{Colors.YELLOW}💡 建议使用HFD工具或稍后重试{Colors.NC}")
+                else:
+                    print(f"{Colors.RED}HTTP错误: {e.response.status_code}{Colors.NC}")
+                return []
+            except Exception as e:
+                print(f"{Colors.RED}❌ 获取文件列表失败: {str(e)}{Colors.NC}")
+                return []
+                
+            finally:
+                # 恢复原始递归限制
+                sys.setrecursionlimit(original_recursion_limit)
             
-            files = []
-            for item in data:
-                if item['type'] == 'file':
-                    file_url = f"{base_url}/{repo_type}/{repo_id}/resolve/{revision}/{item['path']}"
-                    files.append({
-                        'filename': item['path'],
-                        'url': file_url,
-                        'size': item.get('size', 0)
-                    })
-            
-            print(f"{Colors.GREEN}✓ 获取到 {len(files)} 个文件{Colors.NC}")
-            return files
-            
-        except requests.exceptions.Timeout:
-            print(f"{Colors.RED}⚠️ API请求超时{Colors.NC}")
-            return []
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 401:
-                print(f"{Colors.RED}❌ 认证失败: 该仓库需要有效的Hugging Face token{Colors.NC}")
-                print(f"{Colors.YELLOW}💡 请使用 --hf-token 参数提供访问令牌{Colors.NC}")
-            elif e.response.status_code == 403:
-                print(f"{Colors.RED}❌ 访问被拒绝: 您可能没有访问该仓库的权限{Colors.NC}")
-            else:
-                print(f"{Colors.RED}HTTP错误: {e.response.status_code}{Colors.NC}")
-            return []
         except Exception as e:
             print(f"{Colors.RED}获取文件列表失败: {str(e)}{Colors.NC}")
             return []
@@ -176,6 +262,30 @@ class DownloadManager:
             # 初始化文件追踪器
             file_tracker = FileTracker(task_id)
             
+            # 检查是否是HFD导入的任务
+            if task.get('created_from_hfd') and task.get('hfd_complete_files'):
+                print(f"{Colors.BLUE}🔄 检测到HFD导入的任务，使用HFD文件列表...{Colors.NC}")
+                file_list = task['hfd_complete_files']
+                print(f"{Colors.CYAN}📊 从HFD导入的文件列表: {len(file_list)} 个文件{Colors.NC}")
+                
+                # 如果是首次下载，初始化文件状态
+                if not file_tracker.file_status:
+                    print(f"{Colors.BLUE}📋 初始化文件状态...{Colors.NC}")
+                    file_tracker.initialize_file_list(file_list)
+                    
+                    # 更新任务进度
+                    completed = len([f for f in file_list if f.get('status') == 'completed'])
+                    progress = f"{completed * 100 / len(file_list):.1f}%"
+                    self.task_manager.update_task_progress(task_id, progress)
+                    
+                    # 开始下载待下载的文件
+                    pending_files = [f for f in file_list if f.get('status') == 'pending']
+                    print(f"{Colors.CYAN}📊 待下载: {len(pending_files)} 个文件{Colors.NC}")
+                    return self._execute_download(task_id, pending_files, download_path, file_tracker)
+                else:
+                    print(f"{Colors.BLUE}🔄 检测到已有下载记录，进行智能断点续传...{Colors.NC}")
+                    return self._resume_smart_download(task_id, task, download_path, file_tracker)
+            
             # 检查是否是恢复下载（已有元数据）
             if file_tracker.file_status:
                 print(f"{Colors.BLUE}🔄 检测到已有下载记录，进行智能断点续传...{Colors.NC}")
@@ -215,6 +325,23 @@ class DownloadManager:
     def _resume_smart_download(self, task_id, task, download_path, file_tracker):
         """智能断点续传下载"""
         try:
+            # 如果是HFD导入的任务，直接使用元数据中的状态
+            if task.get('created_from_hfd') and task.get('hfd_complete_files'):
+                print(f"{Colors.BLUE}🔄 使用HFD导入的文件状态...{Colors.NC}")
+                
+                # 获取待下载的文件
+                pending_files = [f for f in task['hfd_complete_files'] if f.get('status') == 'pending']
+                completed_files = [f for f in task['hfd_complete_files'] if f.get('status') == 'completed']
+                
+                print(f"{Colors.GREEN}✓ 文件状态统计:{Colors.NC}")
+                print(f"  总文件数: {len(task['hfd_complete_files'])}")
+                print(f"  已完成: {len(completed_files)} 个文件")
+                print(f"  待下载: {len(pending_files)} 个文件")
+                
+                # 开始下载待下载的文件
+                return self._execute_download(task_id, pending_files, download_path, file_tracker)
+            
+            # 对于非HFD任务，执行原有的状态检查逻辑
             print(f"{Colors.BLUE}🔍 正在检查已下载文件状态...{Colors.NC}")
             
             # 重新验证所有文件状态

@@ -1,0 +1,33 @@
+{
+  "download": {
+    "tool": "aria2c",
+    "max_connections": 16,
+    "split": 16,
+    "timeout": 60,
+    "retry": 3,
+    "retry_wait": 3,
+    "max_download_limit": "0",
+    "continue": true,
+    "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
+  },
+  "paths": {
+    "downloads_dir": "./downloads",
+    "metadata_dir": "./metadata",
+    "logs_dir": "./logs"
+  },
+  "network": {
+    "hf_endpoint": "https://hf-mirror.com",
+    "proxy": null,
+    "timeout": 30,
+    "max_retries": 3
+  },
+  "huggingface": {
+    "username": "",
+    "token": ""
+  },
+  "system": {
+    "max_concurrent_downloads": 3,
+    "disk_space_threshold": 1024,
+    "auto_cleanup": false
+  }
+}

@@ -14,6 +14,7 @@ from typing import Dict, List, Optional, Tuple, Set
 import argparse
 
 from task_manager import TaskManager
+from utils import get_current_timestamp, format_file_size
 
 
 class HFDImporter:
@@ -137,6 +138,10 @@ class HFDImporter:
         aria2c_files = self.parse_aria2c_urls()
         repo_metadata = self.parse_repo_metadata()
         
+        print(f"\n📊 文件统计:")
+        print(f"  siblings总数: {len(repo_metadata.get('siblings', []))}")
+        print(f"  aria2c文件数: {len(aria2c_files)}")
+        
         # 获取所有文件列表
         all_siblings = repo_metadata.get('siblings', [])
         
@@ -144,6 +149,7 @@ class HFDImporter:
         complete_file_list = []
         aria2c_file_paths = set(aria2c_files.keys())
         
+        # 首先处理所有siblings中的文件
         for sibling in all_siblings:
             rfilename = sibling.get('rfilename', '')
             if not rfilename:
@@ -155,36 +161,34 @@ class HFDImporter:
             # 检查这个文件是否在 aria2c_urls.txt 中
             has_download_config = rfilename in aria2c_file_paths
             
+            # 获取文件大小
+            size = sibling.get('size', 0)
+            
             if has_download_config:
-                # 有下载配置的文件
+                # 有下载配置的文件（待下载）
                 aria2c_config = aria2c_files[rfilename]
                 file_entry = {
-                    'relative_path': rfilename,
-                    'full_path': str(full_path),
+                    'filename': rfilename,
                     'url': aria2c_config.get('url', ''),
-                    'status': self.get_file_status(full_path, True),
-                    'gid': aria2c_config.get('gid'),
-                    'aria2c_config': aria2c_config,
-                    'from_hfd': True,
-                    'has_download_config': True,
-                    'in_aria2c_urls': True
+                    'size': size,
+                    'status': 'pending',
+                    'from_hfd': True
                 }
             else:
-                # 没有下载配置的文件（可能是 .gitattributes, README.md 等）
+                # 没有下载配置的文件（已完成）
                 # 构造一个基本的URL
                 repo_id = repo_metadata.get('id', 'unknown')
                 url = f"{self.base_url}/datasets/{repo_id}/resolve/main/{rfilename}"
                 
                 file_entry = {
-                    'relative_path': rfilename,
-                    'full_path': str(full_path),
+                    'filename': rfilename,
                     'url': url,
-                    'status': self.get_file_status(full_path, False),
-                    'gid': None,
-                    'aria2c_config': None,
-                    'from_hfd': True,
-                    'has_download_config': False,
-                    'in_aria2c_urls': False
+                    'size': size,
+                    'status': 'completed',
+                    'actual_size': size,  # 已完成文件的实际大小就是size
+                    'downloaded_size': size,  # 已完成文件的下载大小就是size
+                    'completed_at': get_current_timestamp(),
+                    'from_hfd': True
                 }
             
             complete_file_list.append(file_entry)
@@ -194,11 +198,8 @@ class HFDImporter:
         missing_from_siblings = aria2c_file_paths - sibling_paths
         
         if missing_from_siblings:
-            print(f"⚠️  警告: 发现 {len(missing_from_siblings)} 个文件在 aria2c_urls.txt 中但不在 repo_metadata.json 的 siblings 中:")
-            for missing_path in list(missing_from_siblings)[:5]:  # 只显示前5个
-                print(f"   - {missing_path}")
-            if len(missing_from_siblings) > 5:
-                print(f"   - ... 还有 {len(missing_from_siblings) - 5} 个")
+            print(f"\n⚠️  警告: 发现 {len(missing_from_siblings)} 个文件在 aria2c_urls.txt 中但不在 repo_metadata.json 的 siblings 中")
+            print(f"这些文件也会被添加到下载列表中。")
                 
             # 添加这些缺失的文件
             for missing_path in missing_from_siblings:
@@ -206,18 +207,28 @@ class HFDImporter:
                 full_path = self.output_dir / missing_path
                 
                 file_entry = {
-                    'relative_path': missing_path,
-                    'full_path': str(full_path),
+                    'filename': missing_path,
                     'url': aria2c_config.get('url', ''),
-                    'status': self.get_file_status(full_path, True),
-                    'gid': aria2c_config.get('gid'),
-                    'aria2c_config': aria2c_config,
-                    'from_hfd': True,
-                    'has_download_config': True,
-                    'in_aria2c_urls': True,
-                    'missing_from_siblings': True
+                    'size': 0,  # 大小未知
+                    'status': 'pending',
+                    'from_hfd': True
                 }
                 complete_file_list.append(file_entry)
+        
+        print(f"  完整文件数: {len(complete_file_list)}")
+        
+        # 统计状态
+        status_count = {'pending': 0, 'completed': 0}
+        total_size = 0
+        for file_entry in complete_file_list:
+            status = file_entry['status']
+            status_count[status] = status_count.get(status, 0) + 1
+            if status == 'completed':
+                total_size += file_entry.get('size', 0)
+            
+        print(f"  - 待下载: {status_count['pending']} 个文件")
+        print(f"  - 已完成: {status_count['completed']} 个文件")
+        print(f"  - 已完成大小: {total_size / (1024**3):.2f} GB")
         
         return complete_file_list
         
@@ -259,11 +270,30 @@ class HFDImporter:
         import datetime
         task_info['hfd_metadata']['import_time'] = datetime.datetime.now().isoformat()
         
+        # 统计文件状态
+        status_counts = {'pending': 0, 'completed': 0}
+        total_size = 0
+        for file_entry in file_list:
+            status = file_entry.get('status', 'pending')
+            status_counts[status] = status_counts.get(status, 0) + 1
+            if status == 'completed':
+                total_size += file_entry.get('size', 0)
+        
+        # 添加统计信息到元数据
+        task_info['hfd_metadata'].update({
+            'complete_files_count': len(file_list),
+            'completed_files': status_counts['completed'],
+            'pending_files': status_counts['pending'],
+            'total_size': total_size,
+            'total_size_formatted': format_file_size(total_size)
+        })
+        
         # 创建任务，使用TaskManager现有的接口
         task_id = task_manager.create_task(
             repo_id=task_info['repo_id'],
             local_dir=task_info['output_dir'],
-            is_dataset=True  # HFD通常用于数据集
+            is_dataset=True,  # HFD通常用于数据集
+            hfd_metadata=task_info['hfd_metadata']  # 传递HFD元数据
         )
         
         # 获取任务并添加HFD特有的元数据
@@ -274,35 +304,9 @@ class HFDImporter:
             task['created_from_hfd'] = True
             task['base_url'] = task_info['base_url']
             task['total_files'] = len(file_list)
-            
-            # 统计文件状态
-            status_counts = {}
-            download_config_counts = {'with_config': 0, 'without_config': 0}
-            
-            for file_entry in file_list:
-                status = file_entry['status']
-                status_counts[status] = status_counts.get(status, 0) + 1
-                
-                if file_entry.get('has_download_config', False):
-                    download_config_counts['with_config'] += 1
-                else:
-                    download_config_counts['without_config'] += 1
-            
-            # 计算进度
-            completed_files = status_counts.get('completed', 0)
-            if len(file_list) > 0:
-                progress = f"{completed_files * 100 // len(file_list)}%"
-                task['progress'] = progress
-            
-            # 添加统计信息
-            task['file_status_counts'] = status_counts
-            task['download_config_counts'] = download_config_counts
+            task['hfd_complete_files'] = file_list  # 保存完整的文件列表
             
             # 更新任务
-            task_manager._save_tasks()
-            
-            # 保存完整的文件列表到任务中
-            task['hfd_complete_files'] = file_list
             task_manager._save_tasks()
             
         return task_id
@@ -370,7 +374,7 @@ class HFDImporter:
                     'downloading': '⏬', 
                     'pending': '⏳'
                 }.get(file_entry['status'], '❓')
-                print(f"  {status_icon} {file_entry['relative_path']}")
+                print(f"  {status_icon} {file_entry['filename']}")
                 
             if len(no_config_files) > 5:
                 print(f"  ... 还有 {len(no_config_files) - 5} 个文件")
@@ -385,8 +389,7 @@ class HFDImporter:
                     'downloading': '⏬', 
                     'pending': '⏳'
                 }.get(file_entry['status'], '❓')
-                gid = file_entry.get('gid', 'N/A')[:8] + '...' if file_entry.get('gid') else 'N/A'
-                print(f"  {status_icon} {file_entry['relative_path']} (gid: {gid})")
+                print(f"  {status_icon} {file_entry['filename']}")
                 
             if len(config_files) > 5:
                 print(f"  ... 还有 {len(config_files) - 5} 个文件")

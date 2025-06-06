@@ -57,24 +57,37 @@ class FileTracker:
         # 初始化每个文件的状态
         for file_info in file_list:
             file_key = file_info['filename']
+            status = file_info.get('status', 'pending')  # 使用文件自带的状态
+            
             if file_key not in self.file_status:
                 self.file_status[file_key] = {
                     'filename': file_info['filename'],
                     'url': file_info['url'],
                     'expected_size': file_info.get('size', 0),
-                    'status': 'pending',  # pending, downloading, completed, failed
-                    'downloaded_size': 0,
-                    'actual_size': 0,
+                    'status': status,  # 使用文件自带的状态
+                    'downloaded_size': file_info.get('downloaded_size', 0),
+                    'actual_size': file_info.get('actual_size', 0) if status == 'completed' else 0,
                     'checksum': None,
                     'error_message': None,
                     'attempts': 0,
                     'created_at': get_current_timestamp(),
                     'started_at': None,
-                    'completed_at': None
+                    'completed_at': get_current_timestamp() if status == 'completed' else None
                 }
         
         self._save_file_list()
         self._save_file_status()
+        
+        # 打印状态统计
+        status_count = {}
+        for info in self.file_status.values():
+            status = info.get('status', 'unknown')
+            status_count[status] = status_count.get(status, 0) + 1
+            
+        print(f"\n📊 文件状态初始化完成:")
+        print(f"  总文件数: {len(self.file_status)}")
+        for status, count in status_count.items():
+            print(f"  - {status}: {count} 个文件")
     
     def update_file_status(self, filename, status, **kwargs):
         """更新文件状态"""

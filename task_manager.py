@@ -33,7 +33,7 @@ class TaskManager:
         """保存任务列表"""
         return save_json_file(self.tasks_file, self.tasks)
     
-    def create_task(self, repo_id, local_dir=None, revision='main', is_dataset=False):
+    def create_task(self, repo_id, local_dir=None, revision='main', is_dataset=False, hfd_metadata=None):
         """创建下载任务"""
         task_id = f"task_{int(time.time())}"
         
@@ -59,6 +59,17 @@ class TaskManager:
             'retry_count': 0,
             'max_retries': 3
         }
+        
+        # 如果是HFD导入的任务，添加HFD相关的元数据
+        if hfd_metadata:
+            task.update({
+                'created_from_hfd': True,
+                'hfd_metadata': hfd_metadata,
+                'total_files': hfd_metadata.get('complete_files_count', 0),
+                'completed_files': hfd_metadata.get('completed_files', 0),
+                'pending_files': hfd_metadata.get('pending_files', 0),
+                'progress': f"{hfd_metadata.get('completed_files', 0) * 100 / hfd_metadata.get('complete_files_count', 1):.1f}%"
+            })
         
         self.tasks.append(task)
         

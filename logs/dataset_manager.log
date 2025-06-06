@@ -192,3 +192,29 @@ https://hf-mirror.com/datasets/lavita/medical-qa-shared-task-v1-to...
 2025-06-06 15:22:07,258 - task_manager - INFO - 成功创建任务: task_1749194527 - UCSC-VLAA/Recap-DataComp-1B
 2025-06-06 15:36:12,567 - task_manager - INFO - 成功创建任务: task_1749195372 - UCSC-VLAA/Recap-DataComp-1B
 2025-06-06 15:41:34,544 - task_manager - INFO - 成功创建任务: task_1749195694 - UCSC-VLAA/Recap-DataComp-1B
+2025-06-06 18:20:45,126 - task_manager - INFO - 成功创建任务: task_1749205245 - HuggingFaceFW/fineweb
+2025-06-06 18:55:56,228 - task_manager - INFO - 成功创建任务: task_1749207355 - HuggingFaceFW/fineweb
+2025-06-06 19:00:15,623 - task_manager - INFO - 成功创建任务: task_1749207615 - HuggingFaceFW/fineweb
+2025-06-06 19:09:49,645 - task_manager - INFO - 成功创建任务: task_1749208188 - HuggingFaceFW/fineweb
+2025-06-06 19:11:55,977 - task_manager - INFO - 成功创建任务: task_1749208314 - HuggingFaceFW/fineweb
+2025-06-06 19:16:28,965 - task_manager - INFO - 成功创建任务: task_1749208587 - HuggingFaceFW/fineweb
+2025-06-06 19:22:11,647 - task_manager - INFO - 成功创建任务: task_1749208929 - HuggingFaceFW/fineweb
+2025-06-06 19:23:34,249 - task_manager - INFO - 成功创建任务: task_1749209011 - HuggingFaceFW/fineweb
+2025-06-06 19:24:56,621 - task_manager - INFO - 成功创建任务: task_1749209093 - HuggingFaceFW/fineweb
+2025-06-06 19:29:31,888 - task_manager - INFO - 成功创建任务: task_1749209369 - HuggingFaceFW/fineweb
+2025-06-06 19:31:21,912 - task_manager - INFO - 成功创建任务: task_1749209478 - HuggingFaceFW/fineweb
+2025-06-06 19:36:53,487 - task_manager - INFO - 成功创建任务: task_1749209809 - HuggingFaceFW/fineweb
+2025-06-06 19:37:01,976 - root - WARNING - 无法加载JSON文件 metadata/tasks.json: Expecting ',' delimiter: line 2611254 column 12 (char 99109814)
+2025-06-06 19:37:02,928 - root - WARNING - 无法加载JSON文件 metadata/tasks.json: Expecting ',' delimiter: line 2611254 column 12 (char 99109814)
+2025-06-06 19:37:04,076 - root - WARNING - 无法加载JSON文件 metadata/tasks.json: Expecting ',' delimiter: line 2611254 column 12 (char 99109814)
+2025-06-06 19:37:55,920 - task_manager - INFO - 成功创建任务: task_1749209875 - HuggingFaceFW/fineweb
+2025-06-06 19:46:26,623 - dataset_manager - INFO - 成功添加数据集: bigcode/the-stack-v2
+2025-06-06 19:46:27,115 - task_manager - INFO - 成功创建任务: task_1749210386 - bigcode/the-stack-v2
+2025-06-06 19:47:57,343 - task_manager - INFO - 成功创建任务: task_1749210476 - bigcode/the-stack-v2
+2025-06-06 19:49:56,818 - task_manager - INFO - 成功创建任务: task_1749210596 - bigcode/the-stack-v2
+2025-06-06 19:53:16,097 - dataset_manager - INFO - 成功添加数据集: LLM360/TxT360
+2025-06-06 19:53:16,437 - task_manager - INFO - 成功创建任务: task_1749210796 - LLM360/TxT360
+2025-06-06 19:59:17,649 - task_manager - INFO - 成功创建任务: task_1749211157 - LLM360/TxT360
+2025-06-06 20:00:09,943 - root - WARNING - 无法加载JSON文件 metadata/tasks/task_1749211157/file_status.json: Expecting value: line 551668 column 19 (char 21754766)
+2025-06-06 20:00:18,889 - root - WARNING - 无法加载JSON文件 metadata/tasks/task_1749211157/file_status.json: Expecting value: line 551668 column 19 (char 21754766)
+2025-06-06 20:00:22,913 - task_manager - INFO - 成功创建任务: task_1749211222 - LLM360/TxT360

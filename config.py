@@ -165,10 +165,6 @@ class LegacyConfigMethods:
     def __init__(self, config_instance):
         self.config = config_instance
     
-    def get_hf_endpoint(self):
-        """获取HF端点"""
-        return self.config.get_hf_endpoint()
-    
     def get_metadata_dir(self):
         """获取元数据目录"""
         from pathlib import Path
@@ -209,7 +205,12 @@ class LegacyConfigMethods:
             }
         return None
 
-# 为全局配置实例添加传统方法
-for method_name in dir(LegacyConfigMethods):
-    if not method_name.startswith('_') and method_name != 'config':
-        setattr(config, method_name, getattr(LegacyConfigMethods(config), method_name)) 
+# 创建传统方法实例并手动添加到配置对象
+legacy_methods = LegacyConfigMethods(config)
+config.get_metadata_dir = legacy_methods.get_metadata_dir
+config.get_downloads_dir = legacy_methods.get_downloads_dir
+config.get_logs_dir = legacy_methods.get_logs_dir
+config.set_metadata_dir = legacy_methods.set_metadata_dir
+config.set_downloads_dir = legacy_methods.set_downloads_dir
+config.set_logs_dir = legacy_methods.set_logs_dir
+config.get_proxies = legacy_methods.get_proxies 
