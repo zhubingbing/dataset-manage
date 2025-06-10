@@ -145,7 +145,7 @@ class DownloadManager:
                     files_in_page = []
                     for item in data:
                         if item['type'] == 'file':
-                            file_url = f"{base_url}/{repo_type}/{repo_id}/resolve/{revision}/{item['path']}"
+                            file_url = f"{base_url}/{repo_id}/resolve/{revision}/{item['path']}"
                             files_in_page.append({
                                 'filename': item['path'],
                                 'url': file_url,
@@ -173,7 +173,7 @@ class DownloadManager:
                         existing_files = {f['filename'] for f in all_files}
                         for sibling in repo_info['siblings']:
                             if 'rfilename' in sibling and sibling['rfilename'] not in existing_files:
-                                file_url = f"{base_url}/{repo_type}/{repo_id}/resolve/{revision}/{sibling['rfilename']}"
+                                file_url = f"{base_url}/{repo_id}/resolve/{revision}/{sibling['rfilename']}"
                                 all_files.append({
                                     'filename': sibling['rfilename'],
                                     'url': file_url,

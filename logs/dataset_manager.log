@@ -218,3 +218,9 @@ https://hf-mirror.com/datasets/lavita/medical-qa-shared-task-v1-to...
 2025-06-06 20:00:09,943 - root - WARNING - 无法加载JSON文件 metadata/tasks/task_1749211157/file_status.json: Expecting value: line 551668 column 19 (char 21754766)
 2025-06-06 20:00:18,889 - root - WARNING - 无法加载JSON文件 metadata/tasks/task_1749211157/file_status.json: Expecting value: line 551668 column 19 (char 21754766)
 2025-06-06 20:00:22,913 - task_manager - INFO - 成功创建任务: task_1749211222 - LLM360/TxT360
+2025-06-10 18:21:27,043 - dataset_manager - INFO - 成功添加数据集: bigscience/bloom-1b7
+2025-06-10 18:21:27,043 - task_manager - INFO - 成功创建任务: task_1749550887 - bigscience/bloom-1b7
+2025-06-10 18:22:02,443 - task_manager - INFO - 成功创建任务: task_1749550922 - bigscience/bloom-1b7
+2025-06-10 18:22:55,493 - dataset_manager - INFO - 成功添加数据集: HuggingFaceTB/SmolVLM-256M-Instruct
+2025-06-10 18:22:55,493 - task_manager - INFO - 成功创建任务: task_1749550975 - HuggingFaceTB/SmolVLM-256M-Instruct
+2025-06-10 18:27:08,236 - task_manager - INFO - 成功创建任务: task_1749551228 - HuggingFaceTB/SmolVLM-256M-Instruct
