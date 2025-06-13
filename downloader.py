@@ -13,6 +13,8 @@ import subprocess
 import requests
 from pathlib import Path
 from urllib.parse import urljoin
+import shutil
+from typing import Tuple
 
 from config import get_config
 from utils import get_current_timestamp, Colors, format_file_size
@@ -212,6 +214,45 @@ class DownloadManager:
             print(f"{Colors.RED}获取文件列表失败: {str(e)}{Colors.NC}")
             return []
     
+    def _validate_download_path(self, path: Path) -> Tuple[bool, str]:
+        """验证下载路径的有效性
+        
+        Args:
+            path: 下载路径
+
+        Returns:
+            Tuple[bool, str]: (是否有效, 错误信息)
+        """
+        try:
+            # 1. 检查路径是否为空
+            if not path:
+                return False, "下载路径不能为空"
+
+            # 2. 检查路径是否存在，不存在则尝试创建
+            if not path.exists():
+                try:
+                    path.mkdir(parents=True, exist_ok=True)
+                except Exception as e:
+                    return False, f"创建目录失败: {str(e)}"
+
+            # 3. 检查是否为目录
+            if not path.is_dir():
+                return False, f"{path} 不是一个目录"
+
+            # 4. 检查写入权限
+            if not os.access(path, os.W_OK):
+                return False, f"没有目录 {path} 的写入权限"
+
+            # 5. 检查磁盘空间
+            total, used, free = shutil.disk_usage(str(path))
+            if free < 1024 * 1024 * 100:  # 至少需要100MB可用空间
+                return False, f"目录 {path} 可用空间不足 100MB"
+
+            return True, ""
+
+        except Exception as e:
+            return False, f"验证路径时发生错误: {str(e)}"
+
     def _prepare_download_directory(self, task_id, repo_id, local_dir=None):
         """准备下载目录"""
         if local_dir:
@@ -221,8 +262,10 @@ class DownloadManager:
             downloads_dir = self.config.get_downloads_dir()
             download_path = downloads_dir / repo_id
         
-        # 确保目录存在
-        download_path.mkdir(parents=True, exist_ok=True)
+        # 验证下载路径
+        is_valid, error_msg = self._validate_download_path(download_path)
+        if not is_valid:
+            raise ValueError(f"下载路径无效: {error_msg}")
         
         return download_path
 
@@ -819,10 +862,39 @@ class DownloadManager:
             
         return self.task_manager.cancel_task(task_id)
     
-    def resume_download(self, task_id):
-        """恢复下载任务"""
-        task = self.task_manager.get_task(task_id)
-        if not task or task['status'] != 'cancelled':
-            return False
+    def resume_download(self, task_id, downloads_dir=None):
+        """恢复下载任务
         
-        return self.start_download(task_id)
+        Args:
+            task_id: 任务ID
+            downloads_dir: 可选，新的下载目录路径
+        
+        Returns:
+            bool: 是否成功启动恢复
+        """
+        try:
+            task = self.task_manager.get_task(task_id)
+            if not task or task['status'] != 'cancelled':
+                raise ValueError(f"任务 {task_id} 不存在或状态不是已取消")
+
+            # 如果指定了新的下载目录
+            if downloads_dir:
+                new_path = Path(downloads_dir)
+                # 验证新路径
+                is_valid, error_msg = self._validate_download_path(new_path)
+                if not is_valid:
+                    raise ValueError(f"新的下载路径无效: {error_msg}")
+                
+                # 更新任务的下载路径
+                task['local_dir'] = str(new_path)
+                self.task_manager._save_tasks()
+                print(f"{Colors.GREEN}✓ 下载路径已更新为: {new_path}{Colors.NC}")
+
+            return self.start_download(task_id)
+
+        except ValueError as e:
+            print(f"{Colors.RED}✗ 恢复任务失败: {str(e)}{Colors.NC}")
+            return False
+        except Exception as e:
+            print(f"{Colors.RED}✗ 恢复任务时发生错误: {str(e)}{Colors.NC}")
+            return False

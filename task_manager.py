@@ -7,12 +7,41 @@ import logging
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import TypedDict, Optional, List, Dict, Union
 from utils import (
     ensure_data_dir, load_json_file, save_json_file, 
     get_current_timestamp, generate_task_id, Colors
 )
 from config import get_config
 import time
+
+class Task(TypedDict):
+    """任务类型定义"""
+    id: str
+    repo_id: str
+    tool: str
+    threads: int
+    concurrent: int
+    local_dir: Optional[str]
+    revision: str
+    is_dataset: bool
+    status: str
+    progress: str
+    created_at: str
+    started_at: Optional[str]
+    completed_at: Optional[str]
+    error_message: Optional[str]
+    download_size: int
+    downloaded_size: int
+    download_speed: int
+    eta: Optional[str]
+    retry_count: int
+    max_retries: int
+    created_from_hfd: Optional[bool]
+    hfd_metadata: Optional[Dict]
+    total_files: Optional[int]
+    completed_files: Optional[int]
+    pending_files: Optional[int]
 
 class TaskManager:
     """任务管理器"""

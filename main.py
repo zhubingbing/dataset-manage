@@ -292,6 +292,7 @@ def main():
                               help='自动跳过已完成但被移走的文件（默认行为）')
     resume_parser.add_argument('--redownload-moved-files', action='store_true',
                               help='重新下载已完成但被移走的文件')
+    resume_parser.add_argument('--downloads-dir', '-d', help='指定新的下载目录路径，用于数据迁移场景')
     
     # 清理命令  
     subparsers.add_parser('clean', help='清理完成的任务记录')
@@ -590,99 +591,10 @@ def main():
                 print(f"{Colors.RED}✗ 无法取消任务 {args.task_id}{Colors.NC}")
                 
         elif args.command == 'resume':
-            # 获取任务信息
-            task = task_manager.get_task(args.task_id)
-            if not task:
-                print(f"{Colors.RED}✗ 任务 {args.task_id} 不存在{Colors.NC}")
-                return
-            
-            # 检查参数冲突
-            if args.skip_moved_files and args.redownload_moved_files:
-                print(f"{Colors.RED}✗ --skip-moved-files 和 --redownload-moved-files 不能同时使用{Colors.NC}")
-                return
-            
-            print(f"{Colors.BLUE}准备恢复下载任务:{Colors.NC}")
-            print(f"  ID: {args.task_id}")
-            print(f"  数据集: {task['repo_id']}")
-            print(f"  当前状态: {task['status']}")
-            print(f"  当前进度: {task.get('progress', '0%')}")
-            
-            # 显示移走文件处理策略
-            if args.redownload_moved_files:
-                print(f"  移走文件策略: {Colors.YELLOW}重新下载已移走的文件{Colors.NC}")
+            if download_manager.resume_download(args.task_id, args.downloads_dir):
+                print(f"{Colors.GREEN}✓ 任务 {args.task_id} 已恢复下载{Colors.NC}")
             else:
-                print(f"  移走文件策略: {Colors.GREEN}跳过已移走的文件（推荐）{Colors.NC}")
-            
-            # 检查任务状态
-            if task['status'] == 'completed':
-                print(f"{Colors.GREEN}任务已完成，无需恢复{Colors.NC}")
-                
-                # 但是让用户选择是否要重新验证文件
-                response = input("是否要重新验证文件完整性？(y/N): ")
-                if response.lower() == 'y':
-                    print(f"{Colors.YELLOW}正在重新验证文件...{Colors.NC}")
-                    # 重置任务状态为pending，让系统重新检查
-                    task_manager.update_task_status(args.task_id, 'pending')
-                else:
-                    return
-            elif task['status'] == 'running':
-                print(f"{Colors.YELLOW}⚠️ 任务显示为运行中，但可能已中断{Colors.NC}")
-                response = input("是否强制重新开始下载？(y/N): ")
-                if response.lower() != 'y':
-                    print("取消恢复")
-                    return
-                # 重置任务状态为pending
-                task_manager.update_task_status(args.task_id, 'pending')
-            else:
-                # 对于其他状态（failed, cancelled等），直接重置为pending
-                task_manager.update_task_status(args.task_id, 'pending')
-            
-            print(f"{Colors.YELLOW}正在恢复下载...{Colors.NC}")
-            
-            # 设置移走文件处理选项
-            download_manager.set_moved_files_strategy(
-                'redownload' if args.redownload_moved_files else 'skip'
-            )
-            
-            # 开始下载（支持智能断点续传）
-            success = download_manager.start_download(args.task_id)
-            if success:
-                print(f"{Colors.GREEN}✓ 下载恢复成功{Colors.NC}")
-                
-                # 等待下载完成
-                max_iterations = 300  # 最多等待10分钟
-                iteration = 0
-                
-                while iteration < max_iterations:
-                    # 重新加载任务数据
-                    task_manager.tasks = task_manager._load_tasks()
-                    current_task = task_manager.get_task(args.task_id)
-                    
-                    if not current_task:
-                        print(f"{Colors.RED}✗ 任务丢失{Colors.NC}")
-                        break
-                        
-                    if current_task['status'] in ['completed', 'failed', 'cancelled']:
-                        break
-                        
-                    print(f"{Colors.BLUE}下载中... 进度: {current_task.get('progress', '0%')} | 状态: {current_task['status']}{Colors.NC}")
-                    time.sleep(2)
-                    iteration += 1
-                
-                # 最终状态检查
-                task_manager.tasks = task_manager._load_tasks()
-                final_task = task_manager.get_task(args.task_id)
-                
-                if not final_task:
-                    print(f"{Colors.RED}✗ 任务丢失{Colors.NC}")
-                elif iteration >= max_iterations:
-                    print(f"{Colors.YELLOW}⚠ 下载超时，请检查任务状态{Colors.NC}")
-                elif final_task['status'] == 'completed':
-                    print(f"{Colors.GREEN}✓ 恢复下载完成{Colors.NC}")
-                else:
-                    print(f"{Colors.RED}✗ 恢复下载失败: {final_task.get('error_message', '未知错误')}{Colors.NC}")
-            else:
-                print(f"{Colors.RED}✗ 无法恢复任务 {args.task_id}{Colors.NC}")
+                print(f"{Colors.RED}✗ 恢复任务失败{Colors.NC}")
                 
         elif args.command == 'clean':
             count = task_manager.clean_completed_tasks()

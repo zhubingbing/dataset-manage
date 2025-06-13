@@ -224,3 +224,13 @@ https://hf-mirror.com/datasets/lavita/medical-qa-shared-task-v1-to...
 2025-06-10 18:22:55,493 - dataset_manager - INFO - 成功添加数据集: HuggingFaceTB/SmolVLM-256M-Instruct
 2025-06-10 18:22:55,493 - task_manager - INFO - 成功创建任务: task_1749550975 - HuggingFaceTB/SmolVLM-256M-Instruct
 2025-06-10 18:27:08,236 - task_manager - INFO - 成功创建任务: task_1749551228 - HuggingFaceTB/SmolVLM-256M-Instruct
+2025-06-11 17:12:04,624 - dataset_manager - INFO - 成功添加数据集: gpt2
+2025-06-11 17:12:04,624 - task_manager - INFO - 成功创建任务: task_1749633124 - gpt2
+2025-06-11 17:15:20,789 - task_manager - INFO - 成功创建任务: task_1749633320 - gpt2
+2025-06-11 17:16:27,734 - dataset_manager - INFO - 成功添加数据集: gpt2
+2025-06-11 17:16:27,735 - task_manager - INFO - 成功创建任务: task_1749633387 - gpt2
+2025-06-12 08:57:45,801 - dataset_manager - INFO - 成功添加数据集: gpt2
+2025-06-12 08:57:45,802 - task_manager - INFO - 成功创建任务: task_1749689865 - gpt2
+2025-06-13 11:24:28,123 - task_manager - INFO - 成功创建任务: task_1749785068 - gpt2
+2025-06-13 11:30:06,485 - dataset_manager - INFO - 成功添加数据集: gpt2
+2025-06-13 11:30:06,485 - task_manager - INFO - 成功创建任务: task_1749785406 - gpt2

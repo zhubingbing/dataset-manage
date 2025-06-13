@@ -10,11 +10,14 @@ from pathlib import Path
 from datetime import datetime
 from utils import load_json_file, save_json_file, get_current_timestamp, format_file_size
 from config import get_config
+from typing import Optional, Dict, List, Union
+import shutil
+from task_manager import Task  # 添加Task类型导入
 
 class FileTracker:
     """文件下载状态跟踪器"""
     
-    def __init__(self, task_id):
+    def __init__(self, task_id: str):
         self.task_id = task_id
         self.config = get_config()
         self.metadata_dir = self.config.get_metadata_dir() / 'tasks' / task_id
@@ -214,8 +217,35 @@ class FileTracker:
         """清理元数据（可选）"""
         try:
             if self.metadata_dir.exists():
-                import shutil
                 shutil.rmtree(self.metadata_dir)
             return True
         except Exception:
-            return False 
+            return False
+    
+    def _handle_completed_files(self, task: Dict, old_path: str, new_path: str) -> None:
+        """处理已完成文件的迁移策略"""
+        for file_info in task.get('files', []):
+            if file_info.get('status') == 'completed':
+                old_file = file_info.get('local_path')
+                if not old_file:
+                    continue
+                    
+                new_file = os.path.join(new_path, 
+                                      os.path.relpath(old_file, old_path))
+                
+                if os.path.exists(old_file):
+                    # 文件还在原位置
+                    os.makedirs(os.path.dirname(new_file), exist_ok=True)
+                    # 可以选择移动或复制
+                    shutil.move(old_file, new_file)
+                elif not os.path.exists(new_file):
+                    # 文件既不在原位置也不在新位置
+                    file_info['status'] = 'pending'
+
+def add_resume_arguments(parser):
+    parser.add_argument(
+        '--downloads-dir', '-d',
+        help='指定新的下载目录路径，用于数据迁移场景',
+        type=str,
+        required=False
+    ) 
