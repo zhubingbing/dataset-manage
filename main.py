@@ -945,57 +945,123 @@ def main():
 
 def show_task_detail(task_id, task_manager):
     """显示任务详细信息"""
+    from utils import Colors
+    from file_tracker import FileTracker
+    
     task = task_manager.get_task(task_id)
     if not task:
         print(f"{Colors.RED}任务 {task_id} 不存在{Colors.NC}")
         return
     
-    print(f"\n=== 任务详细信息 ===")
+    print(f"\n{Colors.BOLD}=== 任务基本信息 ==={Colors.NC}")
     print(f"任务ID: {task_id}")
     print(f"仓库: {task['repo_id']}")
     print(f"状态: {task['status']}")
     print(f"工具: {task['tool']}")
     print(f"创建时间: {task['created_at']}")
+    if task.get('started_at'):
+        print(f"开始时间: {task['started_at']}")
+    if task.get('completed_at'):
+        print(f"完成时间: {task['completed_at']}")
+    if task.get('error_message'):
+        print(f"错误信息: {Colors.RED}{task['error_message']}{Colors.NC}")
     
-    # 如果是HFD导入的任务，使用HFD元数据
-    if task.get('created_from_hfd') and task.get('hfd_metadata'):
-        hfd_meta = task['hfd_metadata']
-        print(f"\n=== 文件统计 ===")
-        print(f"总文件数: {hfd_meta.get('complete_files_count', 0)}")
-        print(f"已完成: {hfd_meta.get('completed_files', 0)} ({hfd_meta.get('completed_files', 0) * 100 / hfd_meta.get('complete_files_count', 1):.1f}%)")
-        print(f"失败: 0")
-        print(f"待下载: {hfd_meta.get('pending_files', 0)}")
-        print(f"下载大小: {hfd_meta.get('total_size_formatted', '0 B')}")
+    # 使用文件追踪器获取详细状态
+    file_tracker = FileTracker(task_id)
+    
+    # 获取文件状态统计
+    status_stats = {}
+    for file_info in file_tracker.file_status.values():
+        status = file_info.get('status', 'unknown')
+        status_stats[status] = status_stats.get(status, 0) + 1
+    
+    print(f"\n{Colors.BOLD}=== 文件状态统计 ==={Colors.NC}")
+    total_files = len(file_tracker.file_status)
+    print(f"总文件数: {total_files}")
+    
+    # 显示各种状态的文件数量
+    status_colors = {
+        'completed': Colors.GREEN,
+        'downloading': Colors.BLUE,
+        'failed': Colors.RED,
+        'pending': Colors.YELLOW
+    }
+    
+    for status, count in status_stats.items():
+        color = status_colors.get(status, Colors.NC)
+        percentage = f"({count/total_files*100:.1f}%)" if total_files > 0 else ""
+        print(f"{color}{status}: {count} {percentage}{Colors.NC}")
+    
+    # 显示下载进度
+    completed_size = sum(f.get('actual_size', 0) for f in file_tracker.file_status.values() if f.get('status') == 'completed')
+    total_size = sum(f.get('expected_size', 0) for f in file_tracker.file_status.values())
+    if total_size > 0:
+        print(f"\n{Colors.BOLD}=== 下载进度 ==={Colors.NC}")
+        print(f"已下载: {format_file_size(completed_size)} / {format_file_size(total_size)}")
+        print(f"完成率: {completed_size/total_size*100:.1f}%")
+    
+    # 显示最近下载的文件
+    completed_files = [
+        (f['filename'], f.get('completed_at', ''))
+        for f in file_tracker.file_status.values()
+        if f.get('status') == 'completed'
+    ]
+    completed_files.sort(key=lambda x: x[1], reverse=True)
+    
+    if completed_files:
+        print(f"\n{Colors.BOLD}=== 最近完成的文件 ==={Colors.NC}")
+        for filename, completed_at in completed_files[:5]:
+            print(f"{Colors.GREEN}✓ {filename}{Colors.NC}")
+            if completed_at:
+                print(f"    完成时间: {completed_at}")
+        if len(completed_files) > 5:
+            print(f"{Colors.CYAN}... 还有 {len(completed_files) - 5} 个已完成文件{Colors.NC}")
+    
+    # 显示下载中的文件
+    downloading_files = [
+        {
+            'filename': f['filename'],
+            'downloaded_size': f.get('downloaded_size', 0),
+            'expected_size': f.get('expected_size', 0),
+            'started_at': f.get('started_at', '')
+        }
+        for f in file_tracker.file_status.values()
+        if f.get('status') == 'downloading'
+    ]
+    
+    if downloading_files:
+        print(f"\n{Colors.BOLD}=== 正在下载的文件 ==={Colors.NC}")
+        for file_info in downloading_files[:5]:
+            filename = file_info['filename']
+            downloaded = file_info['downloaded_size']
+            expected = file_info['expected_size']
+            started_at = file_info['started_at']
+            
+            # 计算下载进度
+            progress = f"({downloaded/expected*100:.1f}%)" if expected > 0 else ""
+            
+            print(f"{Colors.BLUE}⟳ {filename}{Colors.NC}")
+            print(f"    已下载: {format_file_size(downloaded)} / {format_file_size(expected)} {progress}")
+            if started_at:
+                print(f"    开始时间: {started_at}")
         
-        # 显示待下载文件示例
-        if task.get('hfd_complete_files'):
-            pending_files = [f for f in task['hfd_complete_files'] if f.get('status') == 'pending']
-            if pending_files:
-                print("\n待下载文件:")
-                for file in pending_files[:5]:
-                    print(f"  ○ {file['filename']}")
-                if len(pending_files) > 5:
-                    print(f"  ... 还有 {len(pending_files) - 5} 个待下载文件")
-    else:
-        # 使用文件追踪器获取统计信息
-        file_tracker = FileTracker(task_id)
-        summary = file_tracker.get_download_summary()
-        
-        print(f"\n=== 文件统计 ===")
-        print(f"总文件数: {summary['total_files']}")
-        print(f"已完成: {summary['completed_files']} ({summary['completion_rate']})")
-        print(f"失败: {summary['failed_files']}")
-        print(f"待下载: {summary['pending_files']}")
-        print(f"下载大小: {summary['downloaded_size_formatted']} / {summary['total_size_formatted']}")
-        
-        # 显示待下载文件
-        pending_files = file_tracker.get_pending_files()
-        if pending_files:
-            print("\n待下载文件:")
-            for file in pending_files[:5]:
-                print(f"  ○ {file['filename']}")
-            if len(pending_files) > 5:
-                print(f"  ... 还有 {len(pending_files) - 5} 个待下载文件")
+        if len(downloading_files) > 5:
+            print(f"{Colors.CYAN}... 还有 {len(downloading_files) - 5} 个正在下载的文件{Colors.NC}")
+    
+    # 显示失败的文件
+    failed_files = [
+        (f['filename'], f.get('error_message', 'Unknown error'))
+        for f in file_tracker.file_status.values()
+        if f.get('status') == 'failed'
+    ]
+    
+    if failed_files:
+        print(f"\n{Colors.BOLD}=== 失败的文件 ==={Colors.NC}")
+        for filename, error in failed_files[:5]:
+            print(f"{Colors.RED}✗ {filename}{Colors.NC}")
+            print(f"    错误: {error}")
+        if len(failed_files) > 5:
+            print(f"{Colors.CYAN}... 还有 {len(failed_files) - 5} 个失败的文件{Colors.NC}")
 
 if __name__ == '__main__':
     main() 

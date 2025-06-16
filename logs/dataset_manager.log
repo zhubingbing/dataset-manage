@@ -1,0 +1,5 @@
+2025-06-16 15:04:38,772 - dataset_manager - INFO - 成功添加数据集: gpt2
+2025-06-16 15:04:55,256 - task_manager - INFO - 成功创建任务: task_1750057495 - gpt2
+2025-06-16 15:09:59,671 - dataset_manager - INFO - 成功添加数据集: gpt2-medium
+2025-06-16 15:09:59,671 - task_manager - INFO - 成功创建任务: task_1750057799 - gpt2-medium
+2025-06-16 15:12:05,578 - task_manager - INFO - 成功创建任务: task_1750057925 - gpt2-medium

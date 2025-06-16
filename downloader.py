@@ -704,8 +704,8 @@ class DownloadManager:
                     expected_size = file_size_map.get(filename, 0)
                     
                     # 检查文件是否下载完成（大小匹配或者有合理的大小）
-                    if expected_size == 0 or actual_size == expected_size or actual_size > 0:
-                        # 更新为已完成
+                    if expected_size > 0 and actual_size == expected_size:
+                        # 文件大小完全匹配，标记为已完成
                         file_tracker.update_file_status(filename, 'completed', 
                                                       actual_size=actual_size,
                                                       downloaded_size=actual_size)
@@ -713,12 +713,18 @@ class DownloadManager:
                     elif actual_size > 0:
                         # 文件正在下载中
                         if current_status.get('status') != 'downloading':
+                            # 首次检测到下载中状态
                             file_tracker.update_file_status(filename, 'downloading',
-                                                          downloaded_size=actual_size)
+                                                          downloaded_size=actual_size,
+                                                          started_at=get_current_timestamp())
                         else:
                             # 更新下载进度
                             file_tracker.update_file_status(filename, 'downloading',
                                                           downloaded_size=actual_size)
+                elif current_status.get('status') == 'downloading':
+                    # 文件正在下载但暂时不存在（可能是aria2c正在创建文件）
+                    file_tracker.update_file_status(filename, 'downloading',
+                                                  downloaded_size=0)
                 
         except Exception as e:
             print(f"{Colors.YELLOW}⚠️ 状态检查异常: {str(e)}{Colors.NC}")
