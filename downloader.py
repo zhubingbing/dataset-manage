@@ -536,6 +536,7 @@ class DownloadManager:
                 '--split=5',  # 每个文件5个连接
                 '--max-concurrent-downloads=8',  # 同时下载8个文件
                 '--continue=true',  # 断点续传
+                '--max-connection-per-server=5',  # 每个服务器5个连接
                 '--auto-file-renaming=false',
                 '--conditional-get=true',
                 '--allow-overwrite=true',
